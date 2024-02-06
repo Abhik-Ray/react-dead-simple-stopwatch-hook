@@ -1,3 +1,3 @@
 import useStopwatch  from "./useStopwatch";
-
-export default useStopwatch;
+import {decorateTimeStamp} from "./decorateTimeStamp";
+export {useStopwatch, decorateTimeStamp};
