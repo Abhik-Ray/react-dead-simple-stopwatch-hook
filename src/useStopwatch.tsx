@@ -69,6 +69,7 @@ function useStopwatch(prop?: IuseStopwatchProp): IuseStopwatchReturn {
     setIsTimerActive(true);
   }
 
+  //Effect to handle the timer interval based on the timer state
   useEffect(() => {
     if (!timerRef.current && isTimerActive) {
       timerRef.current = setInterval(() => {

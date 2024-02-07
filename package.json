@@ -1,7 +1,7 @@
 {
   "name": "react-dead-simple-stopwatch-hook",
-  "version": "1.1.0",
-  "description": "React Dead Simple Stopwatch Hook",
+  "version": "1.1.1",
+  "description": "A simple hook for all your stopwatch needs",
   "main": "./src/index.ts",
   "scripts": {
     "dev": "vite",
@@ -20,6 +20,7 @@
     "url": "https://github.com/Abhik-Ray/react-dead-simple-stopwatch-hook/issues"
   },
   "homepage": "https://github.com/Abhik-Ray/react-dead-simple-stopwatch-hook#readme",
+  "keywords": ["react", "stopwatch", "react-hooks", "timer", "typescript", "hooks"],
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
