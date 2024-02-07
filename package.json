@@ -1,9 +1,8 @@
 {
   "name": "react-dead-simple-stopwatch-hook",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "React Dead Simple Stopwatch Hook",
-  "main": "./build/index.js",
-  "type": "module",
+  "main": "./src/index.ts",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

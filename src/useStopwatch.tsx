@@ -15,23 +15,27 @@ interface IuseStopwatchProp {
 interface IuseStopwatchReturn {
   currentTime: number;
   startTime: number;
-  isTimerActive: boolean;
+  isTimerActive: boolean | null;
   timerRef: React.MutableRefObject<number | null>;
+  timerState: "paused" | "stopped" | "resumed";
   reset: () => void;
   start: () => void;
   stop: () => void;
+  pause: () => void;
+  resume: () => void;
 }
 
-function useStopwatch(prop: IuseStopwatchProp): IuseStopwatchReturn {
-  const { options, onStart, onStop, onReset } = prop;
+function useStopwatch(prop?: IuseStopwatchProp): IuseStopwatchReturn {
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
-  const [isTimerActive, setIsTimerActive] = useState<boolean>(false);
-  const initialDate = useRef<number>(options?.customStartTime || Date.now());
+  const [isTimerActive, setIsTimerActive] = useState<boolean | null>(null);
+  const initialDate = useRef<number>(prop?.options?.customStartTime || Date.now());
+  const pausedTime = useRef<number>(0);
+  const totalPausedTime = useRef<number>(0);
   const timerRef = useRef<number | null>(null);
 
   const start = () => {
     const presentTime = Date.now();
-    onStart && onStart(presentTime);
+    prop?.onStart && prop?.onStart(presentTime);
     setCurrentTime(presentTime);
     setIsTimerActive(true);
     initialDate.current = presentTime;
@@ -40,16 +44,30 @@ function useStopwatch(prop: IuseStopwatchProp): IuseStopwatchReturn {
 
   const reset = () => {
     const currentTimeUTC = Date.now();
-    onReset && onReset(currentTimeUTC);
+    prop?.onReset && prop?.onReset(currentTimeUTC);
     setCurrentTime(currentTimeUTC);
     initialDate.current = currentTimeUTC;
     timerRef.current = null;
   };
 
   const stop = () => {
-    onStop && onStop(Date.now());
-    setIsTimerActive(false);
+    prop?.onStop && prop?.onStop(Date.now());
+    setIsTimerActive(null);
   };
+
+  const pause = () => {
+    setIsTimerActive(false);
+    pausedTime.current = Date.now();
+  }
+
+  const resume = () => {
+    if(isTimerActive === null){
+      console.error("Timer not intialized, please use start method first");
+      return;
+    }
+    totalPausedTime.current = totalPausedTime.current + pausedTime.current - Date.now()
+    setIsTimerActive(true);
+  }
 
   useEffect(() => {
     if (!timerRef.current && isTimerActive) {
@@ -64,13 +82,16 @@ function useStopwatch(prop: IuseStopwatchProp): IuseStopwatchReturn {
   }, [isTimerActive]);
 
   return {
-    currentTime: currentTime - initialDate.current,
+    currentTime: currentTime - initialDate.current + totalPausedTime.current,
     startTime: initialDate.current,
     timerRef,
     isTimerActive,
+    timerState: isTimerActive === null ? "stopped" : isTimerActive ? "resumed" : "paused",
     reset,
     start,
     stop,
+    pause,
+    resume
   };
 }
 
