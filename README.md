@@ -58,3 +58,15 @@ const {
 | stop() | () => void | Stops the timer completely. Starting the timer from here starts from 00:00:00 |
 | pause() | () => void | Pauses the timer |
 | resume() | () => void | Resumes the timer. Works only when timer is paused and not stopped. |
+
+## decorateTimeStamp
+
+### params
+| value | type | default value | description |
+| ---- | ---- | ---- | ---- |
+| ms | number | 0 | Epoch of the time to change |
+
+### return
+| value | type | description |
+| ---- | ---- | ---- |
+| formattedTime | string | timestamp in the format mm:ss:ms |
