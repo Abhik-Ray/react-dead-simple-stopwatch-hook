@@ -2,13 +2,24 @@
   "name": "react-dead-simple-stopwatch-hook",
   "version": "1.1.1",
   "description": "A simple hook for all your stopwatch needs",
-  "main": "./src/index.ts",
+  "main": "./build/index.js",
+  "module": "./build/index.umd.cjs",
+  "type": "module",
+  "files": [
+    "build"
+  ],
+  "exports": {
+    ".": {
+      "import": "./build/index.js",
+      "require": "./build/index.umd.cjs"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
-
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build-js-esm": "tsc --project tsconfig.build.json --outDir dist/esm"
   },
   "repository": {
     "type": "git",
@@ -20,10 +31,17 @@
     "url": "https://github.com/Abhik-Ray/react-dead-simple-stopwatch-hook/issues"
   },
   "homepage": "https://github.com/Abhik-Ray/react-dead-simple-stopwatch-hook#readme",
-  "keywords": ["react", "stopwatch", "react-hooks", "timer", "typescript", "hooks"],
-  "dependencies": {
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+  "keywords": [
+    "react",
+    "stopwatch",
+    "react-hooks",
+    "timer",
+    "typescript",
+    "hooks"
+  ],
+  "peerDependencies": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.43",
@@ -36,5 +54,9 @@
     "eslint-plugin-react-refresh": "^0.4.5",
     "typescript": "^5.2.2",
     "vite": "^5.0.8"
+  },
+  "dependencies": {
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "vite-plugin-dts": "^3.8.2"
   }
 }

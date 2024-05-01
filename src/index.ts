@@ -1,3 +1,2 @@
-import useStopwatch  from "./useStopwatch";
-import {decorateTimeStamp} from "./decorateTimeStamp";
-export {useStopwatch, decorateTimeStamp};
+export {useStopwatch}  from "./useStopwatch.tsx";
+export {decorateTimeStamp} from "./decorateTimeStamp.ts";

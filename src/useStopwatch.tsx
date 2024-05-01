@@ -25,7 +25,7 @@ interface IuseStopwatchReturn {
   resume: () => void;
 }
 
-function useStopwatch(prop?: IuseStopwatchProp): IuseStopwatchReturn {
+export function useStopwatch(prop?: IuseStopwatchProp): IuseStopwatchReturn {
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
   const [isTimerActive, setIsTimerActive] = useState<boolean | null>(null);
   const initialDate = useRef<number>(prop?.options?.customStartTime || Date.now());
@@ -95,5 +95,3 @@ function useStopwatch(prop?: IuseStopwatchProp): IuseStopwatchReturn {
     resume
   };
 }
-
-export default useStopwatch;
