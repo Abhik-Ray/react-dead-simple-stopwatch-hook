@@ -1,6 +1,6 @@
 {
   "name": "react-dead-simple-stopwatch-hook",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "A simple hook for all your stopwatch needs",
   "main": "./build/index.js",
   "module": "./build/index.umd.cjs",
