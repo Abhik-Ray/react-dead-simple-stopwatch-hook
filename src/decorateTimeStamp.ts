@@ -1,5 +1,5 @@
 export const decorateTimeStamp = (ms: number): string => {
-    ms = Math.abs(ms);
+    ms = Math.floor(Math.abs(ms));
   
     const minutes = Math.floor(ms / (60 * 1000));
     const seconds = Math.floor((ms % (60 * 1000)) / 1000);
