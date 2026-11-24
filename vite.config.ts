@@ -1,18 +1,27 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { copyFileSync } from 'node:fs'
+import dts from 'vite-plugin-dts'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [],
+  plugins: [
+    dts({
+      include: ['src'],
+      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+      rollupTypes: true,
+      // CommonJS consumers need a .d.cts next to the .cjs build.
+      afterBuild: () => copyFileSync('build/index.d.ts', 'build/index.d.cts'),
+    }),
+  ],
   build: {
     outDir: './build',
     lib: {
       entry: './src/index.ts',
-      name: 'react-dead-simple-stopwatch-hook',
+      name: 'ReactDeadSimpleStopwatchHook',
       fileName: 'index'
     },
     rollupOptions: {
-      preserveEntrySignatures: "strict",
       external: ['react', 'react-dom', 'react/jsx-runtime'],
       output: {
         globals: {
@@ -20,12 +29,15 @@ export default defineConfig({
           'react-dom': 'ReactDOM',
         }
       },
-      plugins: [
-        // peerDepsExternal(),
-        react({
-          jsxRuntime: 'classic'
-        }),
-      ]
     }
-  }
+  },
+  test: {
+    environment: 'jsdom',
+    coverage: {
+      provider: 'v8',
+      include: ['src/**'],
+      exclude: ['src/**/*.test.*'],
+      thresholds: { lines: 100, functions: 100, branches: 100, statements: 100 },
+    },
+  },
 })

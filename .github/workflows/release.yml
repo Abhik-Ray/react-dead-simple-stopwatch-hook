@@ -1,0 +1,102 @@
+name: Release
+
+# Runs when you push a version tag, e.g. `git push origin v2.0.0`.
+# Stages the package on npm (you approve it with 2FA on npmjs.com before it goes live)
+# and creates the GitHub release from CHANGELOG.md.
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write # create the GitHub release
+  id-token: write # npm trusted publishing + provenance
+
+concurrency: release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      # Staged publishing needs npm 11.15.0+ and Node 22.14.0+.
+      - name: Install npm 11
+        run: |
+          npm install -g npm@11
+          node -e '
+            const [maj, min] = process.versions.node.split(".").map(Number);
+            if (maj < 22 || (maj === 22 && min < 14)) throw new Error("Node 22.14+ required, got " + process.versions.node);
+          '
+          NPM_VERSION=$(npm --version)
+          echo "Using npm $NPM_VERSION"
+          npx --yes semver@7.6.3 -r ">=11.15.0" "$NPM_VERSION" > /dev/null || { echo "::error::npm 11.15.0+ required, got $NPM_VERSION"; exit 1; }
+
+      - run: npm ci
+
+      - name: Check the tag matches package.json
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME doesn't match package.json version $PKG_VERSION"
+            exit 1
+          fi
+          echo "VERSION=$PKG_VERSION" >> "$GITHUB_ENV"
+          echo "PKG_NAME=$(node -p "require('./package.json').name")" >> "$GITHUB_ENV"
+          # Versions like 2.1.0-beta.1 are prereleases.
+          if [[ "$PKG_VERSION" == *-* ]]; then echo "PRERELEASE=true" >> "$GITHUB_ENV"; fi
+
+      # Fails if the version has no dated CHANGELOG.md entry, before anything is staged.
+      - name: Extract release notes from CHANGELOG.md
+        run: node scripts/changelog-section.mjs "$VERSION" > release-notes.md
+
+      # Same checks as prepublishOnly, run explicitly so they don't depend on
+      # whether `npm stage publish` runs lifecycle scripts.
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:coverage
+      - run: npm run test:package # also builds build/
+
+      - name: Stage on npm
+        run: |
+          if npm view "$PKG_NAME@$VERSION" version > /dev/null 2>&1; then
+            echo "$PKG_NAME@$VERSION is already live on npm, skipping."
+            exit 0
+          fi
+          TAG_FLAG=""
+          if [ "$PRERELEASE" = "true" ]; then TAG_FLAG="--tag next"; fi
+          # Checks already ran above, so skip prepublishOnly.
+          if ! npm stage publish --provenance --access public --ignore-scripts $TAG_FLAG; then
+            echo "::error::Staging failed. If $VERSION is already staged from an earlier run, approve it on npmjs.com, then re-run this workflow."
+            exit 1
+          fi
+          {
+            echo "## Approve the npm release"
+            echo ""
+            echo "\`$PKG_NAME@$VERSION\` is **staged, not live yet**."
+            echo ""
+            echo "Approve it with 2FA on npmjs.com (avatar → **Staged Packages** → **Approve**), or run:"
+            echo ""
+            echo '```sh'
+            echo "npm stage list $PKG_NAME"
+            echo "npm stage approve <stage-id>"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            echo "Release $GITHUB_REF_NAME already exists, skipping."
+            exit 0
+          fi
+          FLAGS=""
+          if [ "$PRERELEASE" = "true" ]; then FLAGS="--prerelease"; fi
+          gh release create "$GITHUB_REF_NAME" --verify-tag --title "$GITHUB_REF_NAME" --notes-file release-notes.md $FLAGS

@@ -1,32 +1,45 @@
 {
   "name": "react-dead-simple-stopwatch-hook",
-  "version": "1.1.3",
+  "version": "2.0.0",
   "description": "A simple hook for all your stopwatch needs",
-  "main": "./build/index.js",
-  "module": "./build/index.umd.cjs",
   "type": "module",
+  "main": "./build/index.umd.cjs",
+  "module": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./build/index.d.ts",
+        "default": "./build/index.js"
+      },
+      "require": {
+        "types": "./build/index.d.cts",
+        "default": "./build/index.umd.cjs"
+      }
+    }
+  },
   "files": [
     "build"
   ],
-  "exports": {
-    ".": {
-      "import": "./build/index.js",
-      "require": "./build/index.umd.cjs"
-    }
-  },
+  "sideEffects": false,
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "build-js-esm": "tsc --project tsconfig.build.json --outDir dist/esm"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run test:coverage && npm run test:package",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:package": "npm run build && node scripts/smoke-test.mjs && publint && node scripts/check-types.mjs"
   },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/Abhik-Ray/react-dead-simple-stopwatch-hook.git"
   },
   "author": "washchi",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/Abhik-Ray/react-dead-simple-stopwatch-hook/issues"
   },
@@ -37,22 +50,33 @@
     "react-hooks",
     "timer",
     "typescript",
-    "hooks"
+    "hooks",
+    "use-stopwatch",
+    "stopwatch-hook",
+    "react19"
   ],
   "peerDependencies": {
-    "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react": "^18.0.0 || ^19.0.0"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@testing-library/dom": "^10.4.0",
+    "@testing-library/react": "^16.3.0",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^2.1.9",
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "jsdom": "^25.0.1",
+    "publint": "^0.2.12",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "typescript": "^5.2.2",
-    "vite": "^5.0.8"
+    "vite": "^5.0.8",
+    "vite-plugin-dts": "^3.9.1",
+    "vitest": "^2.1.9"
   }
 }
