@@ -5,6 +5,10 @@
 [![bundle size](https://img.shields.io/bundlephobia/minzip/react-dead-simple-stopwatch-hook)](https://bundlephobia.com/package/react-dead-simple-stopwatch-hook)
 [![types](https://img.shields.io/npm/types/react-dead-simple-stopwatch-hook)](https://www.npmjs.com/package/react-dead-simple-stopwatch-hook)
 
+Tiny, accurate React stopwatch hook with laps, pause/resume and TypeScript types.
+
+**[▶ Try the live demo](https://abhik-ray.github.io/react-dead-simple-stopwatch-hook/)**
+
 ## Features ✨
 - Start, stop, pause, resume and reset
 - Laps with lap and split times
