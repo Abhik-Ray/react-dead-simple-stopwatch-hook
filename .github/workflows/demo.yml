@@ -1,0 +1,60 @@
+name: Demo
+
+# Builds example/ against the current source and deploys it to GitHub Pages:
+# https://abhik-ray.github.io/react-dead-simple-stopwatch-hook/
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "example/**"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - ".github/workflows/demo.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            example/package-lock.json
+
+      # The example links the package from "..", so build the package first.
+      - run: npm ci
+      - run: npm run build
+
+      - run: npm ci
+        working-directory: example
+      - run: npx vite build --base=/react-dead-simple-stopwatch-hook/
+        working-directory: example
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: example/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
